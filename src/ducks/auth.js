@@ -1,6 +1,6 @@
 import firebase from 'firebase';
 import {Record} from 'immutable';
-import {all, take, call, put} from 'redux-saga/effects';
+import {all, take, call, put, cps} from 'redux-saga/effects';
 
 import {appName} from '../config';
 
@@ -96,18 +96,24 @@ export function signUp(email, password) {
 }
  */
 
+export const watchStatusChange = function * () {
+    const auth = firebase.auth();
 
-firebase.auth().onAuthStateChanged(user => {
-    const store = require('../redux').default;
-    store.dispatch({
-        type: SIGN_IN_SUCCESS,
-        payload: {user}
-    });
-});
-
+    // cps - вызывает функцию в стиле callback, когда первый аргумент это ошибка, а второй функция callback
+    try {
+        yield cps([auth, auth.onAuthStateChanged]);
+    } catch (user) {
+        yield put({
+            type: SIGN_IN_SUCCESS,
+            payload: {user}
+        })
+    }
+    // этот вариант так себе... потом перепишем на нормальный вариант
+};
 
 export const saga = function * () {
     yield all([
-        signUpSaga()
+        signUpSaga(),
+        watchStatusChange()
     ]);
 };
