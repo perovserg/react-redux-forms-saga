@@ -1,6 +1,7 @@
 import firebase from 'firebase';
 import {Record} from 'immutable';
-import {all, take, call, put, cps} from 'redux-saga/effects';
+import {all, take, call, put, cps, takeEvery} from 'redux-saga/effects';
+import {push} from 'connected-react-router';
 
 import {appName} from '../config';
 
@@ -15,6 +16,8 @@ export const SIGN_UP_REQUEST = `${appName}/${moduleName}/SIGN_UP_REQUEST`;
 export const SIGN_UP_SUCCESS = `${appName}/${moduleName}/SIGN_UP_SUCCESS`;
 export const SIGN_UP_ERROR = `${appName}/${moduleName}/SIGN_UP_ERROR`;
 export const SIGN_IN_SUCCESS = `${appName}/${moduleName}/SIGN_IN_SUCCESS`;
+export const SIGN_OUT_REQUEST = `${appName}/${moduleName}/SIGN_OUT_REQUEST`;
+export const SIGN_OUT_SUCCESS = `${appName}/${moduleName}/SIGN_OUT_SUCCESS`;
 
 export default function reducer(state = new ReducerRecord(), action) {
     const {type, payload, error} = action;
@@ -36,8 +39,16 @@ export default function reducer(state = new ReducerRecord(), action) {
             return state
                 .set('loading', false)
                 .set('error', error);
+        case SIGN_OUT_SUCCESS:
+            return new ReducerRecord();
         default:
             return state;
+    }
+}
+
+export function signOut() {
+    return {
+        type: SIGN_OUT_REQUEST
     }
 }
 
@@ -111,9 +122,23 @@ export const watchStatusChange = function * () {
     // этот вариант так себе... потом перепишем на нормальный вариант
 };
 
+export const signOutSaga = function * () {
+    const auth = firebase.auth();
+    try{
+        yield call([auth, auth.signOut]);
+        yield put({
+           type: SIGN_OUT_SUCCESS
+        });
+        yield put(push('/auth/signin'));
+    } catch (e) {
+
+    }
+};
+
 export const saga = function * () {
     yield all([
         signUpSaga(),
-        watchStatusChange()
+        watchStatusChange(),
+        takeEvery(SIGN_OUT_REQUEST, signOutSaga)
     ]);
 };
