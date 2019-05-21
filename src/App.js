@@ -6,6 +6,7 @@ import Root from './components/Root';
 import store from './redux';
 import history from './history';
 
+import './config';
 
 class App extends React.Component {
   render(){
