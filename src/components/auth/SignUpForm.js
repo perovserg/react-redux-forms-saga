@@ -2,7 +2,7 @@ import React from 'react';
 import {reduxForm, Field} from 'redux-form';
 import * as emailValidator from 'email-validator';
 
-import FieldWithErrors from './FieldWithErrors';
+import FieldWithErrors from '../common/FieldWithErrors';
 
 class SignUpForm extends React.Component {
     static propTypes = {
