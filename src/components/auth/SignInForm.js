@@ -7,10 +7,11 @@ class SignInForm extends React.Component {
     };
 
     render() {
+        const {handleSubmit} = this.props;
         return (
             <div>
                 <h1>Sign In</h1>
-                <form>
+                <form onSubmit={handleSubmit}>
                     <div>
                         <label>Email</label>
                         <Field name="email" component="input"/>
