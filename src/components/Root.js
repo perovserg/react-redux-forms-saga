@@ -5,6 +5,7 @@ import {connect} from 'react-redux';
 import AdminPage from './routes/AdminPage';
 import AuthPage from './routes/AuthPage';
 import PersonPage from './routes/PersonPage';
+import EventsPage from './routes/EventsPage';
 import ProtectedRoute from './common/ProtectedRoute';
 
 import {moduleName, signOut} from '../ducks/auth';
@@ -22,6 +23,7 @@ class Root extends React.Component {
                 <ProtectedRoute path="/admin" component={AdminPage}/>
                 <Route path="/auth" component={AuthPage}/>
                 <Route path="/people" component={PersonPage}/>
+                <Route path="/events" component={EventsPage}/>
             </div>
         )
     }
