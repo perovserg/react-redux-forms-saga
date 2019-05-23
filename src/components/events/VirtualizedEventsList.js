@@ -1,47 +1,62 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import {Table, Column} from 'react-virtualized';
+import {Table, Column, InfiniteLoader} from 'react-virtualized';
 import 'react-virtualized/styles.css';
 
-import {moduleName, fetchAll, selectEvent, eventListSelector} from '../../ducks/events';
-import Loader from '../common/Loader';
+import {moduleName, fetchLazy, selectEvent, eventListSelector} from '../../ducks/events';
 
 export class VirtualizedEventsList extends React.Component {
 
     componentDidMount() {
-        this.props.fetchAll();
+        this.props.fetchLazy();
     }
 
     render() {
-        if (this.props.loading) return <Loader/>;
         return (
-            <Table width={700}
-                   height={300}
-                   rowHeight={40}
-                   headerHeight={50}
-                   overscanRowCount={5} // число строк для рендера сверху и снизу по 5 шт.
-                   rowGetter={this.rowGetter}
-                   rowCount={this.props.events.length}
-                   onRowClick={this.handleRowClick}
+            <InfiniteLoader
+                loadMoreRows={this.loadMoreRows}
+                isRowLoaded={this.isRowLoaded}
+                rowCount={this.props.loaded ? this.props.events.length : this.props.events.length + 1}
             >
-                <Column
-                    width={300}
-                    label="title"
-                    dataKey="title"
-                />
-                <Column
-                    width={250}
-                    label="where"
-                    dataKey="where"
-                />
-                <Column
-                    width={150}
-                    label="when"
-                    dataKey="month"
-                />
-            </Table>
+                {({onRowsRendered, registerChild}) =>
+                    <Table
+                        ref={registerChild}
+                        onRowsRendered={onRowsRendered}
+                        width={700}
+                        height={300}
+                        rowHeight={40}
+                        headerHeight={50}
+                        overscanRowCount={5} // число строк для рендера сверху и снизу по 5 шт.
+                        rowGetter={this.rowGetter}
+                        rowCount={this.props.events.length}
+                        onRowClick={this.handleRowClick}
+                    >
+                        <Column
+                            width={300}
+                            label="title"
+                            dataKey="title"
+                        />
+                        <Column
+                            width={250}
+                            label="where"
+                            dataKey="where"
+                        />
+                        <Column
+                            width={150}
+                            label="when"
+                            dataKey="month"
+                        />
+                    </Table>
+                }
+            </InfiniteLoader>
         );
     }
+
+    loadMoreRows = () => {
+        this.props.fetchLazy();
+    };
+
+    isRowLoaded = ({index}) => index < this.props.events.length;
 
     rowGetter = ({index}) => {
         return this.props.events[index];
@@ -55,4 +70,4 @@ export class VirtualizedEventsList extends React.Component {
 export default connect(state => ({
     events: eventListSelector(state),
     loading: state[moduleName].loading
-}), {fetchAll, selectEvent})(VirtualizedEventsList);
+}), {fetchLazy, selectEvent})(VirtualizedEventsList);
