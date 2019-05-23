@@ -7,6 +7,7 @@ import store from './redux';
 import history from './history';
 
 import './config';
+import './mocks';
 
 class App extends React.Component {
   render(){
